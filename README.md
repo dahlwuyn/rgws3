@@ -3,23 +3,23 @@ a simple s3 tool for radosgw
 
 # config:
 ## show basic conf
-        s3 -x
+        python s3.py -x
 ## save basic conf
-        s3 -o rgw.conf -x
+        python s3.py -o rgw.conf -x
 ## build config and save
-        s3 -n rgw -p 7000 -k access -s secret -o rgw.conf -x
-# s3 support:
+        python s3.py -n rgw -p 7000 -k access -s secret -o rgw.conf -x
+# s3 operations:
 ##  list buckets
-        s3 -c rgw.conf get /
+        python s3.py -c rgw.conf get /
 ##  create bucket
-        s3 -c rgw.conf put /bucket
+        python s3.py -c rgw.conf put /bucket
 ##  delete bucket
-        s3 -c rgw.conf delete /bucket
+        python s3.py -c rgw.conf delete /bucket
 ##  list objects in bucket
-        s3 -c rgw.conf get /bucket
+        python s3.py -c rgw.conf get /bucket
 ##  create object
-        s3 -c rgw.conf put /bucket/obj -f local_file
+        python s3.py -c rgw.conf put /bucket/obj -f local_file
 ##  download object
-        s3 -c rgw.conf get /bucket/obj -o local_file
+        python s3.py -c rgw.conf get /bucket/obj -o local_file
 ##  delete object
-        s3 -c rgw.conf delete /bucket/obj
+        python s3.py -c rgw.conf delete /bucket/obj

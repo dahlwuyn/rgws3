@@ -390,9 +390,9 @@ def parse_args():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         version="v1.0.1"
     )
-    parser.add_argument("-n", "--host", action="store", dest="host", default=DEFAULT_HOST,
+    parser.add_argument("-n", "--host", action="store", dest="host", default="",
                         help="rgw server host")
-    parser.add_argument("-p", "--port", action="store", dest="port", default=DEFAULT_PORT, type=int,
+    parser.add_argument("-p", "--port", action="store", dest="port", default=0, type=int,
                         help="rgw server port")
     parser.add_argument("-k", "--access", action="store", dest="access", default="",
                         help="s3 user access key")
@@ -418,23 +418,33 @@ def parse_args():
     parser.add_argument("url", help="HTTP url")
 
     args = parser.parse_args()
+    if not args.conf:
+        if os.path.exists("rgw.conf"):
+            args.conf = "rgw.conf"
+        elif os.path.exists("%s/rgw.conf" % os.environ["HOME"]):
+            args.conf = "%s/rgw.conf" % os.environ["HOME"]
+        elif os.path.exists("/etc/rgw.conf"):
+            args.conf = "/etc/rgw.conf"
+
+    if args.conf:
+        p = ConfigParser.ConfigParser()
+        p.read(args.conf)
+        if p.has_section(SECTION):
+            if p.has_option(SECTION, "host") and not args.host:
+                args.host = p.get(SECTION, "host")
+            if p.has_option(SECTION, "port") and not args.port:
+                args.port = p.getint(SECTION, "port")
+            if p.has_option(SECTION, "access_key") and not args.access:
+                args.access = p.get(SECTION, "access_key")
+            if p.has_option(SECTION, "secret_key") and not args.secret:
+                args.secret = p.get(SECTION, "secret_key")
+    args.host = args.host or DEFAULT_HOST
+    args.port = args.port or DEFAULT_PORT
     return args
 
 
 def main():
     args = parse_args()
-    if args.conf:
-        p = ConfigParser.ConfigParser()
-        p.read(args.conf)
-        if p.has_section(SECTION):
-            if p.has_option(SECTION, "host"):
-                args.host = p.get(SECTION, "host")
-            if p.has_option(SECTION, "port"):
-                args.port = p.getint(SECTION, "port")
-            if p.has_option(SECTION, "access_key"):
-                args.access = p.get(SECTION, "access_key")
-            if p.has_option(SECTION, "secret_key"):
-                args.secret = p.get(SECTION, "secret_key")
     cmd = S3Cmd(args)
     return cmd.main()
 
